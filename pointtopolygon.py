@@ -187,12 +187,15 @@ class PointToPolygon:
         # remove the toolbar
         del self.toolbar
 
+    def cleanErrorMessage(self):
+        self.dlg.labelErrorMessage.clear()
+
     def openInput(self):
         dialog = QFileDialog()
         self.inShapefile = dialog.getOpenFileName(self.dlg,"Open vector file", self.inputPath)
         if self.inShapefile == '':
             return True
-
+        self.cleanErrorMessage()
         # open file, guess driver
         self.inDataSource = ogr.Open(self.inShapefile, 0)
         if self.inDataSource is None:
@@ -223,6 +226,7 @@ class PointToPolygon:
         if thisFile=='':
             return True
         self.outShapefile = self.addExtension(thisFile, '.shp')
+        self.cleanErrorMessage()
 
         # once all ok, update text
         self.dlg.textFileOutput.setText(self.outShapefile)
@@ -289,12 +293,15 @@ class PointToPolygon:
     def doCheckToGo(self):
         # Check input is defined and ok
         if self.inDataSource is None:
+            self.dlg.labelErrorMessage.setText('Missing an input vector file')
             return False
         # check ouput is defined and ok
         if not self.outputOk:
+            self.dlg.labelErrorMessage.setText('Please define an output shapefile')
             return False
         # check padding >0
         if self.dlg.spinboxPadding.value() <= 0.0:
+            self.dlg.labelErrorMessage.setText('Padding must be > 0.0')
             return False
         # all clear
         return True
@@ -308,6 +315,10 @@ class PointToPolygon:
         self.dlg.textFileOutput.clear()
         self.dlg.buttonFileInput.clicked.connect(self.openInput)
         self.dlg.buttonFileOutput.clicked.connect(self.selectOutput)
+        self.dlg.spinboxPadding.setValue(0.0)
+        self.dlg.spinboxPadding.valueChanged.connect(self.cleanErrorMessage)
+
+        self.dlg.labelErrorMessage.clear()
         return True
 
     def run(self):
