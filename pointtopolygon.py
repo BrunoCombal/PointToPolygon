@@ -70,6 +70,10 @@ class PointToPolygon:
         self.toolbar = self.iface.addToolBar(u'PointToPolygon')
         self.toolbar.setObjectName(u'PointToPolygon')
 
+        # application variables
+        self.inputPath = ''
+        self.outputPath = ''
+
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -185,7 +189,7 @@ class PointToPolygon:
 
     def openInput(self):
         dialog = QFileDialog()
-        self.inShapefile = dialog.getOpenFileName(self.dlg,"Open vector file")
+        self.inShapefile = dialog.getOpenFileName(self.dlg,"Open vector file", self.inputPath)
         if self.inShapefile == '':
             return True
 
@@ -198,6 +202,8 @@ class PointToPolygon:
 
         # once all done, update text field
         self.dlg.textFileInput.setText(self.inShapefile)
+        # and save path for next time
+        self.inputPath =  os.path.dirname(self.inShapefile); 
 
         return True
 
@@ -213,7 +219,7 @@ class PointToPolygon:
     def selectOutput(self):
         dialog = QFileDialog()
         dialog.setFileMode(QFileDialog.AnyFile)
-        thisFile = dialog.getSaveFileName(self.dlg, "Define an output filename", filter='*.shp') #os.path.expanduser("~"))
+        thisFile = dialog.getSaveFileName(self.dlg, "Define an ESRI shapefile name", self.outputPath, filter='*.shp') #os.path.expanduser("~"))
         if thisFile=='':
             return True
         self.outShapefile = self.addExtension(thisFile, '.shp')
@@ -221,6 +227,7 @@ class PointToPolygon:
         # once all ok, update text
         self.dlg.textFileOutput.setText(self.outShapefile)
 
+        self.outputPath = os.path.dirname(self.outShapefile)
         self.outputOk = True
         return True
 
