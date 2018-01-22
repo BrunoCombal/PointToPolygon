@@ -14,10 +14,10 @@ version=0.1
 author=Bruno Combal
 email=bruno.combal@gmail.com
 
-about=Reads a shapfile of points, creates squares arounds, the square dimension is defined by a padding parameter.
+about=Transforms a vector file of points into squares centered on those points. The square dimension is defined by the padding parameters (the square width is two times the padding value). If the input file is a vector file of lines or polygons, the centroid of the features will be used to center the polygons.
 
-tracker=https://github.com/BrunoCombal
-repository=https://github.com/BrunoCombal/pointtopolygon
+tracker=https://github.com/BrunoCombal/PointToPolygon/issues
+repository=https://github.com/BrunoCombal/PointToPolygon
 # End of mandatory metadata
 
 # Recommended items:
@@ -26,9 +26,9 @@ repository=https://github.com/BrunoCombal/pointtopolygon
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=
+tags=points,polygons,convert,buffer
 
-homepage=https://github.com/BrunoCombal
+homepage=https://github.com/BrunoCombal/PointToPolygon
 category=Vector
 icon=icon.png
 # experimental flag
