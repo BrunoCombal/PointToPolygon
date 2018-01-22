@@ -33,7 +33,7 @@
    <item>
     <widget class="QLabel" name="labelInput">
      <property name="text">
-      <string>Input vector files</string>
+      <string>Input vector file</string>
      </property>
     </widget>
    </item>
