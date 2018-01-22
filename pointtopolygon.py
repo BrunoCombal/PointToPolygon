@@ -201,54 +201,22 @@ class PointToPolygon:
 
         return True
 
-
-    def addExtension(fname, ext):
+    def addExtension(self, fname, ext):
+        print 'add extension'
         thisExt = os.path.splitext(fname)[-1]
+        print fname, thisExt
         if thisExt != ext:
             return '{}{}'.format(fname, ext)
-
-    def openOutputFromLine(self):
-        if self.dlg.textFileOutput=='':
-            return True
         else:
-            self.outShapefile = self.addExtension(self.dlg.textFileOutput.text(), '.shp')
+            return fname
 
-        self.outputOk = False # redo the tests
-        outDriver = ogr.GetDriverByName("ESRI Shapefile")
-        if os.path.exists(self.outShapefile):
-            try:
-                outDriver.DeleteDataSource(self.outShapefile)
-            except:
-                # error message to push
-                return False
-                pass
-        self.outDS = outDriver.CreateDataSource(self.outShapefile)
-        self.outLayer = self.outDS.CreateLayer("polygon", self.spatialRef, geom_type=ogr.wkbPolygon)
-
-        # once all ok, update text
-        self.dlg.textFileOutput.setText(self.outShapefile)
-
-        self.outputOk = True
-        return True
-
-    def openOutput(self):
+    def selectOutput(self):
         dialog = QFileDialog()
-        thisFile = dialog.getSaveFileName(self.dlg, "Define an output filename", os.path.expanduser("~"))
-         self.outShapefile = self.addExtension(thisFile, '.shp')
-        if self.outShapefile=='':
+        dialog.setFileMode(QFileDialog.AnyFile)
+        thisFile = dialog.getSaveFileName(self.dlg, "Define an output filename", filter='*.shp') #os.path.expanduser("~"))
+        if thisFile=='':
             return True
-
-        self.outputOk = False # redo the tests
-        outDriver = ogr.GetDriverByName("ESRI Shapefile")
-        if os.path.exists(self.outShapefile):
-            try:
-                outDriver.DeleteDataSource(self.outShapefile)
-            except:
-                # error message to push
-                return False
-                pass
-        self.outDS = outDriver.CreateDataSource(self.outShapefile)
-        self.outLayer = self.outDS.CreateLayer("polygon", self.spatialRef, geom_type=ogr.wkbPolygon)
+        self.outShapefile = self.addExtension(thisFile, '.shp')
 
         # once all ok, update text
         self.dlg.textFileOutput.setText(self.outShapefile)
@@ -256,11 +224,20 @@ class PointToPolygon:
         self.outputOk = True
         return True
 
-
-#    def updatePadding(self):
-#        pass
 
     def doProcessing(self):
+        # create output, copy projection from input
+        outDriver = ogr.GetDriverByName("ESRI Shapefile")
+        if os.path.exists(self.outShapefile):
+            try:
+                outDriver.DeleteDataSource(self.outShapefile)
+            except:
+                # error message to push
+                return False
+                pass
+
+        self.outDS = outDriver.CreateDataSource(self.outShapefile)
+        self.outLayer = self.outDS.CreateLayer("polygon", self.spatialRef, geom_type=ogr.wkbPolygon)
         # copy all fields from points to polygons
         # list of fields
         layerDefinition = self.inLayer.GetLayerDefn()
@@ -323,9 +300,7 @@ class PointToPolygon:
         self.dlg.textFileInput.clear()
         self.dlg.textFileOutput.clear()
         self.dlg.buttonFileInput.clicked.connect(self.openInput)
-        self.dlg.buttonFileOutput.clicked.connect(self.openOutput)
-        self.dlg.textFileInput.textChanged.connect(openOutputFromLine)
-        #self.dlg.spinboxPadding.valueChanged.connect(self.updatePadding)
+        self.dlg.buttonFileOutput.clicked.connect(self.selectOutput)
         return True
 
     def run(self):
@@ -335,7 +310,6 @@ class PointToPolygon:
         self.dlg.show()
         # Run the dialog event loop
         checkToGo = False
-
         while not checkToGo:
             runApp = self.dlg.exec_()
             # See if OK was pressed
