@@ -14,7 +14,7 @@ version=0.4B-RC
 author=Bruno Combal
 email=bruno.combal@gmail.com
 
-about=Transforms a vector file of points into polygons (squares, rectangles or hexagons) centered on those points. The polygons dimensions are defined by the padding parameters (for a square the width is two times the padding value). If the input file is a vector file of lines or polygons, the centroid of the features will be used to center the polygons. A rotation can be applied to the output polygons. Optionally, the centroid of an input layer can be generated.
+about=Transforms a vector file of points into polygons (squares, rectangles or hexagons) centered on those points. The polygons dimensions are defined by the padding parameters (for a square the width is two times the padding value). If the input file is a vector file of lines or polygons, the centroid of the features will be used as the centre of the output polygons. A rotation can be applied to the output polygons. Optionally, the centroids of the input layer can be generated.
 
 tracker=https://github.com/BrunoCombal/PointToPolygon/issues
 repository=https://github.com/BrunoCombal/PointToPolygon
