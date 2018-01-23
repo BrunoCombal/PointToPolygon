@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>487</width>
-    <height>376</height>
+    <width>583</width>
+    <height>518</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,8 +32,21 @@
    </item>
    <item>
     <widget class="QLabel" name="labelInput">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
       <string>Input vector file</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>A vector file of points, or lines, or polygons.</string>
      </property>
     </widget>
    </item>
@@ -82,15 +95,21 @@
    </item>
    <item>
     <widget class="QLabel" name="labelOutput">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
-      <string>Output (polygons, in ESRI shapefile format)</string>
+      <string>Output (ESRI shapefile format)</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLabel" name="labelOutputExplain">
      <property name="text">
-      <string>A square around the centroid of the input features wil be generated. The square width and height is 2 times the padding value.</string>
+      <string>A polygon around the centroid of the input features wil be generated.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -128,17 +147,35 @@
     </layout>
    </item>
    <item>
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+    <widget class="QLabel" name="label_3">
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <italic>true</italic>
+       <bold>false</bold>
+      </font>
      </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
+     <property name="text">
+      <string>Type of output</string>
      </property>
-    </spacer>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Centroid: the centroid of the input is computed.</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Square, rectangle, hexagon: a polygon is drawn around the centroid of the input features, the polygon dimension is controlled with 1 (square and hexagon) or 2 (rectangle) padding parameters. For a square or a rectangle, the width and heigth is 2 time the padding values. For an hexagon, the padding corresponds to the distance from the hexagon tips to the centroid.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="hLayoutRadio">
@@ -186,6 +223,11 @@
    </item>
    <item>
     <widget class="QLabel" name="labelPadding">
+     <property name="font">
+      <font>
+       <italic>true</italic>
+      </font>
+     </property>
      <property name="text">
       <string>Distance to centre (in input units)</string>
      </property>
@@ -300,6 +342,13 @@
    </item>
    <item>
     <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <italic>true</italic>
+       <bold>false</bold>
+      </font>
+     </property>
      <property name="text">
       <string>Polygon rotation (in degrees)</string>
      </property>
