@@ -323,34 +323,38 @@ class PointToPolygon:
         return True
 
     def doInitGui(self):
+        # set the interface and signals
+        self.dlg.buttonFileInput.clicked.connect(self.openInput)
+        self.dlg.buttonFileOutput.clicked.connect(self.selectOutput)
+        self.dlg.spinboxPadding.valueChanged.connect(self.cleanErrorMessage)
+        self.dlg.spinBoxPaddingY.valueChanged.connect(self.cleanErrorMessage)
+        # radio button and their signals
+        self.dlg.radioSquare.clicked.connect(lambda: self.radioButton('square'))
+        self.dlg.radioRectangle.clicked.connect(lambda: self.radioButton('rectangle'))
+        self.dlg.radioHexagon.clicked.connect(lambda: self.radioButton('hexagon'))
+        # clean the interface
+        self.resetGUI()
+
+    # resetGUI to be called each time the plugin is ran
+    def resetGUI(self):
         # boolean for checkToGo
         self.inDataSource = None
         self.outputOk = False
-
-        # set the interface and signals
+        # clean the interface
         self.dlg.textFileInput.clear()
         self.dlg.textFileOutput.clear()
-        self.dlg.buttonFileInput.clicked.connect(self.openInput)
-        self.dlg.buttonFileOutput.clicked.connect(self.selectOutput)
         self.dlg.spinboxPadding.setValue(0.0)
-        self.dlg.spinboxPadding.valueChanged.connect(self.cleanErrorMessage)
-        self.dlg.spinBoxPaddingY.valueChanged.connect(self.cleanErrorMessage)
-
-        # radio button and their signals
-        self.dlg.radioSquare.clicked.connect(lambda: self.radioButton('square'))
+        # set the radio buttons
         self.dlg.radioSquare.setChecked(True)
         self.dlg.spinBoxPaddingY.setEnabled(False)
-        self.dlg.radioRectangle.clicked.connect(lambda: self.radioButton('rectangle'))
         self.dlg.radioRectangle.setChecked(False)
-        self.dlg.radioHexagon.clicked.connect(lambda: self.radioButton('hexagon'))
         self.dlg.radioHexagon.setChecked(False)
-
         # the communication section
         self.dlg.labelErrorMessage.clear()
 
     def run(self):
-        # show the dialog
-        #self.doInitGui()
+        # clean the interface
+        self.resetGUI()
         self.dlg.show()
         # Run the dialog event loop
         checkToGo = False
