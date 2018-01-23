@@ -74,22 +74,12 @@ class PointToPolygon:
         self.inputPath = ''
         self.outputPath = ''
         self.sqrt3_2 = 0.5*math.sqrt(3)
+        self.LogName='Point to Polygon'
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
-        """Get the translation for a string using Qt translation API.
-
-        We implement this ourselves since we do not inherit QObject.
-
-        :param message: String for translation.
-        :type message: str, QString
-
-        :returns: Translated version of message.
-        :rtype: QString
-        """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('PointToPolygon', message)
-
 
     def add_action(
         self,
@@ -102,45 +92,6 @@ class PointToPolygon:
         status_tip=None,
         whats_this=None,
         parent=None):
-        """Add a toolbar icon to the toolbar.
-
-        :param icon_path: Path to the icon for this action. Can be a resource
-            path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
-        :type icon_path: str
-
-        :param text: Text that should be shown in menu items for this action.
-        :type text: str
-
-        :param callback: Function to be called when the action is triggered.
-        :type callback: function
-
-        :param enabled_flag: A flag indicating if the action should be enabled
-            by default. Defaults to True.
-        :type enabled_flag: bool
-
-        :param add_to_menu: Flag indicating whether the action should also
-            be added to the menu. Defaults to True.
-        :type add_to_menu: bool
-
-        :param add_to_toolbar: Flag indicating whether the action should also
-            be added to the toolbar. Defaults to True.
-        :type add_to_toolbar: bool
-
-        :param status_tip: Optional text to show in a popup when mouse pointer
-            hovers over the action.
-        :type status_tip: str
-
-        :param parent: Parent widget for the new action. Defaults None.
-        :type parent: QWidget
-
-        :param whats_this: Optional text to show in the status bar when the
-            mouse pointer hovers over the action.
-
-        :returns: The action that was created. Note that the action is also
-            added to self.actions list.
-        :rtype: QAction
-        """
-
         # Create the dialog (after translation) and keep reference
         self.dlg = PointToPolygonDialog()
 
@@ -165,6 +116,8 @@ class PointToPolygon:
 
         self.actions.append(action)
 
+        self.doInitGui()
+
         return action
 
     def initGui(self):
@@ -176,7 +129,6 @@ class PointToPolygon:
             text=self.tr(u'Create squares around points'),
             callback=self.run,
             parent=self.iface.mainWindow())
-
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -212,9 +164,7 @@ class PointToPolygon:
         return True
 
     def addExtension(self, fname, ext):
-        print 'add extension'
         thisExt = os.path.splitext(fname)[-1]
-        print fname, thisExt
         if thisExt != ext:
             return '{}{}'.format(fname, ext)
         else:
@@ -236,10 +186,17 @@ class PointToPolygon:
         self.outputOk = True
         return True
 
+    #
+    # returns a polygon ring around a central point
+    # inputs:
+    #   xx, yy: central point coordinates
+    #   paddingX, paddingY: padding around the centroid, defines the output ring size.
+    #   angle: rotation angle (radians) to apply to the output polygon
+    #   polygonType: type of polygon, defines the output polygons vertex coordinates
+    #
     def doPolygon(self, xx, yy, paddingX, paddingY, angle, polygonType):
 
         pointList=[]
-
         if polygonType == 'square':
             pointList.append([xx-paddingX, yy+paddingX])
             pointList.append([xx+paddingX, yy+paddingX])
@@ -276,19 +233,24 @@ class PointToPolygon:
         for iPoint in pointList:
             ring.AddPoint(iPoint[0], iPoint[1])
 
-
         return ring
 
+    #
+    # Creates and output, read the input, transform input features into centroids, for each centroid
+    # creates a polygon around, save them to the output.
+    # Input: from self values, defined by the interface
+    #
     def doProcessing(self):
         # create output, copy projection from input
-        outDriver = ogr.GetDriverByName("ESRI Shapefile")
-        if os.path.exists(self.outShapefile):
-            try:
+        try:
+            outDriver = ogr.GetDriverByName("ESRI Shapefile")
+            if os.path.exists(self.outShapefile):
                 outDriver.DeleteDataSource(self.outShapefile)
-            except:
-                # error message to push
-                return False
-                pass
+        except:
+            # error message to push
+            iface.messageBar().pushMessage("Error", "Could not create output layer. Check this layer is not already open.", level=QgsMessageBar.CRITICAL)
+            QgsMessageLog.logMessage("uld not create output layer. Check this layer is not already open.", self.LogName, QgsMessageLog.INFO)
+            return False
 
         self.outDS = outDriver.CreateDataSource(self.outShapefile)
         self.outLayer = self.outDS.CreateLayer("polygon", self.spatialRef, geom_type=ogr.wkbPolygon)
@@ -339,7 +301,8 @@ class PointToPolygon:
     def OpenInQGis(self):
         layer = self.iface.addVectorLayer(self.outShapefile, "Padded", "ogr")
         if not layer:
-            print "Layer failed to load!"
+            iface.messageBar().pushMessage("Error", "Layer failed to load", level=QgsMessageBar.CRITICAL)
+            QgsMessageLog.logMessage("Layer failed to load", self.LogName, QgsMessageLog.INFO)
 
     def doCheckToGo(self):
         # Check input is defined and ok
@@ -364,6 +327,7 @@ class PointToPolygon:
         self.inDataSource = None
         self.outputOk = False
 
+        # set the interface and signals
         self.dlg.textFileInput.clear()
         self.dlg.textFileOutput.clear()
         self.dlg.buttonFileInput.clicked.connect(self.openInput)
@@ -372,6 +336,7 @@ class PointToPolygon:
         self.dlg.spinboxPadding.valueChanged.connect(self.cleanErrorMessage)
         self.dlg.spinBoxPaddingY.valueChanged.connect(self.cleanErrorMessage)
 
+        # radio button and their signals
         self.dlg.radioSquare.clicked.connect(lambda: self.radioButton('square'))
         self.dlg.radioSquare.setChecked(True)
         self.dlg.spinBoxPaddingY.setEnabled(False)
@@ -380,13 +345,12 @@ class PointToPolygon:
         self.dlg.radioHexagon.clicked.connect(lambda: self.radioButton('hexagon'))
         self.dlg.radioHexagon.setChecked(False)
 
+        # the communication section
         self.dlg.labelErrorMessage.clear()
-        return True
 
     def run(self):
-        """Run method that performs all the real work"""
         # show the dialog
-        self.doInitGui()
+        #self.doInitGui()
         self.dlg.show()
         # Run the dialog event loop
         checkToGo = False
@@ -394,14 +358,13 @@ class PointToPolygon:
             runApp = self.dlg.exec_()
             # See if OK was pressed
             if runApp: # run=True, check if one can run
-                print 'runApp ok'
                 checkToGo = self.doCheckToGo()
-                print 'checkToGo ',checkToGo
             else: # cancel=True
                 checkToGo = True
 
         if runApp:
-            print 'running doProcessing'
             if self.doProcessing():
                 if self.dlg.checkBoxOpenQGis.checkState():
                     self.OpenInQGis()
+
+
