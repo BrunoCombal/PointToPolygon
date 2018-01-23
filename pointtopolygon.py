@@ -354,6 +354,8 @@ class PointToPolygon:
         if self.dlg.spinboxPadding.value() <= 0.0:
             self.dlg.labelErrorMessage.setText('Padding must be > 0.0')
             return False
+        if self.dlg.radioRectangle.isChecked() and self.dlg.spinBoxPaddingY.value() <=0.0:
+            self.dlg.labelErrorMessage.setText('Y padding must be > 0.0 for a rectangle')
         # all clear
         return True
 
@@ -368,6 +370,7 @@ class PointToPolygon:
         self.dlg.buttonFileOutput.clicked.connect(self.selectOutput)
         self.dlg.spinboxPadding.setValue(0.0)
         self.dlg.spinboxPadding.valueChanged.connect(self.cleanErrorMessage)
+        self.dlg.spinBoxPaddingY.valueChanged.connect(self.cleanErrorMessage)
 
         self.dlg.radioSquare.clicked.connect(lambda: self.radioButton('square'))
         self.dlg.radioSquare.setChecked(True)
