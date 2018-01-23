@@ -31,7 +31,7 @@ import resources
 # Import the code for the dialog
 from pointtopolygon_dialog import PointToPolygonDialog
 import os.path
-
+import math
 
 class PointToPolygon:
     """QGIS Plugin Implementation."""
@@ -73,6 +73,7 @@ class PointToPolygon:
         # application variables
         self.inputPath = ''
         self.outputPath = ''
+        self.sqrt3_2 = 0.5*math.sqrt(3)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -235,6 +236,48 @@ class PointToPolygon:
         self.outputOk = True
         return True
 
+    def doPolygon(self, xx, yy, paddingX, paddingY, angle, polygonType):
+
+        pointList=[]
+
+        if polygonType == 'square':
+            pointList.append([xx-paddingX, yy+paddingX])
+            pointList.append([xx+paddingX, yy+paddingX])
+            pointList.append([xx+paddingX, yy-paddingX])
+            pointList.append([xx-paddingX, yy-paddingX])
+            pointList.append([xx-paddingX, yy+paddingX])
+        elif polygonType == 'rectangle':
+            pointList.append([xx-paddingX, yy+paddingY])
+            pointList.append([xx+paddingX, yy+paddingY])
+            pointList.append([xx+paddingX, yy-paddingY])
+            pointList.append([xx-paddingX, yy-paddingY])
+            pointList.append([xx-paddingX, yy+paddingY])
+        elif polygonType == 'hexagon':
+            pointList.append([xx + 0.5*paddingX, yy + self.sqrt3_2*paddingX])
+            pointList.append([xx + paddingX, yy])
+            pointList.append([xx + 0.5*paddingX, yy - self.sqrt3_2*paddingX])
+            pointList.append([xx - 0.5*paddingX, yy - self.sqrt3_2*paddingX])
+            pointList.append([xx- paddingX, yy])
+            pointList.append([xx-0.5*paddingX, yy + self.sqrt3_2*paddingX])
+            pointList.append([xx + 0.5*paddingX, yy + self.sqrt3_2*paddingX])
+
+        if angle !=0:
+            tmp = []
+            cosa = math.cos(angle)
+            sina = math.sin(angle)
+            for ii in pointList:
+                xrot = (ii[0]-xx) * cosa - (ii[1]-yy) * sina  
+                yrot = (ii[0]-xx) * sina + (ii[1]-yy) * cosa
+                tmp.append([xrot + xx, yrot + yy])
+            pointList = None
+            pointList = tmp
+
+        ring = ogr.Geometry(ogr.wkbLinearRing)
+        for iPoint in pointList:
+            ring.AddPoint(iPoint[0], iPoint[1])
+
+
+        return ring
 
     def doProcessing(self):
         # create output, copy projection from input
@@ -256,21 +299,23 @@ class PointToPolygon:
             fieldDefn = layerDefinition.GetFieldDefn(ii)
             self.outLayer.CreateField(fieldDefn)
 
-        padding=self.dlg.spinboxPadding.value();
+        paddingX=self.dlg.spinboxPadding.value()
+        paddingY=self.dlg.spinBoxPaddingY.value()
+        angle = math.radians(self.dlg.spinBoxAngle.value())
+        polygonType='square'
+        if self.dlg.radioRectangle.isChecked():
+            polygonType='rectangle'
+        elif self.dlg.radioHexagon.isChecked():
+            polygonType='hexagon'
 
         for feature in self.inLayer:
             geom = feature.GetGeometryRef()
             # can take any input in, consider only the centroids.
             xx = geom.Centroid().GetX()
             yy = geom.Centroid().GetY()
-            ring = ogr.Geometry(ogr.wkbLinearRing)
-            ring.AddPoint(xx-padding, yy+padding)
-            ring.AddPoint(xx+padding, yy+padding)
-            ring.AddPoint(xx+padding, yy-padding)
-            ring.AddPoint(xx-padding, yy-padding)
-            ring.AddPoint(xx-padding, yy+padding)
+ 
             poly = ogr.Geometry(ogr.wkbPolygon)
-            poly.AddGeometry(ring)
+            poly.AddGeometry( self.doPolygon(xx, yy, paddingX, paddingY, angle, polygonType) )
             outFeature = ogr.Feature(self.outLayer.GetLayerDefn())
             outFeature.SetGeometry(poly)
             self.outLayer.CreateFeature(outFeature)
@@ -284,6 +329,12 @@ class PointToPolygon:
         self.outDS = None
 
         return True
+
+    def radioButton(self, polygonType):
+        if polygonType == 'rectangle':
+            self.dlg.spinBoxPaddingY.setEnabled(True)
+        else:
+            self.dlg.spinBoxPaddingY.setEnabled(False)
 
     def OpenInQGis(self):
         layer = self.iface.addVectorLayer(self.outShapefile, "Padded", "ogr")
@@ -317,6 +368,14 @@ class PointToPolygon:
         self.dlg.buttonFileOutput.clicked.connect(self.selectOutput)
         self.dlg.spinboxPadding.setValue(0.0)
         self.dlg.spinboxPadding.valueChanged.connect(self.cleanErrorMessage)
+
+        self.dlg.radioSquare.clicked.connect(lambda: self.radioButton('square'))
+        self.dlg.radioSquare.setChecked(True)
+        self.dlg.spinBoxPaddingY.setEnabled(False)
+        self.dlg.radioRectangle.clicked.connect(lambda: self.radioButton('rectangle'))
+        self.dlg.radioRectangle.setChecked(False)
+        self.dlg.radioHexagon.clicked.connect(lambda: self.radioButton('hexagon'))
+        self.dlg.radioHexagon.setChecked(False)
 
         self.dlg.labelErrorMessage.clear()
         return True

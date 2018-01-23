@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>487</width>
+    <height>376</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -128,28 +128,189 @@
     </layout>
    </item>
    <item>
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="hLayoutRadio">
+     <item>
+      <widget class="QRadioButton" name="radioSquare">
+       <property name="text">
+        <string>square</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">radioGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioRectangle">
+       <property name="text">
+        <string>rectangle</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">radioGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioHexagon">
+       <property name="text">
+        <string>hexagon</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">radioGroup</string>
+       </attribute>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QLabel" name="labelPadding">
      <property name="text">
-      <string>Padding (in input units)</string>
+      <string>Distance to centre (in input units)</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QDoubleSpinBox" name="spinboxPadding">
+    <layout class="QHBoxLayout" name="hLayoutPadding">
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelSBX">
+       <property name="maximumSize">
+        <size>
+         <width>30</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>x:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="spinboxPadding">
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="decimals">
+        <number>8</number>
+       </property>
+       <property name="maximum">
+        <double>360.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="lableSBY">
+       <property name="maximumSize">
+        <size>
+         <width>30</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>y:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="spinBoxPaddingY">
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="decimals">
+        <number>8</number>
+       </property>
+       <property name="maximum">
+        <double>360.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Polygon rotation (in degrees)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDoubleSpinBox" name="spinBoxAngle">
      <property name="maximumSize">
       <size>
        <width>100</width>
        <height>16777215</height>
       </size>
      </property>
-     <property name="decimals">
-      <number>3</number>
+     <property name="minimum">
+      <double>-360.000000000000000</double>
      </property>
      <property name="maximum">
       <double>360.000000000000000</double>
      </property>
      <property name="singleStep">
-      <double>0.100000000000000</double>
+      <double>10.000000000000000</double>
      </property>
     </widget>
    </item>
@@ -192,7 +353,6 @@
   <tabstop>buttonFileInput</tabstop>
   <tabstop>textFileOutput</tabstop>
   <tabstop>buttonFileOutput</tabstop>
-  <tabstop>spinboxPadding</tabstop>
   <tabstop>button_box</tabstop>
  </tabstops>
  <resources/>
@@ -230,4 +390,7 @@
    </hints>
   </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="radioGroup"/>
+ </buttongroups>
 </ui>
