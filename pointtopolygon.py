@@ -252,8 +252,19 @@ class PointToPolygon:
             QgsMessageLog.logMessage("uld not create output layer. Check this layer is not already open.", self.LogName, QgsMessageLog.INFO)
             return False
 
+        polygonType='square'
+        if self.dlg.radioRectangle.isChecked():
+            polygonType='rectangle'
+        elif self.dlg.radioHexagon.isChecked():
+            polygonType='hexagon'
+        elif self.dlg.radioCentroid.isChecked():
+            polygonType='centroid'
+
         self.outDS = outDriver.CreateDataSource(self.outShapefile)
-        self.outLayer = self.outDS.CreateLayer("polygon", self.spatialRef, geom_type=ogr.wkbPolygon)
+        if polygonType=='centroid':
+            self.outLayer = self.outDS.CreateLayer("point", self.spatialRef, geom_type=ogr.wkbPoint)
+        else:
+            self.outLayer = self.outDS.CreateLayer("polygon", self.spatialRef, geom_type=ogr.wkbPolygon)
         # copy all fields from points to polygons
         # list of fields
         layerDefinition = self.inLayer.GetLayerDefn()
@@ -261,14 +272,10 @@ class PointToPolygon:
             fieldDefn = layerDefinition.GetFieldDefn(ii)
             self.outLayer.CreateField(fieldDefn)
 
-        paddingX=self.dlg.spinboxPadding.value()
+        paddingX=self.dlg.spinBoxPaddingX.value()
         paddingY=self.dlg.spinBoxPaddingY.value()
         angle = math.radians(self.dlg.spinBoxAngle.value())
-        polygonType='square'
-        if self.dlg.radioRectangle.isChecked():
-            polygonType='rectangle'
-        elif self.dlg.radioHexagon.isChecked():
-            polygonType='hexagon'
+
 
         for feature in self.inLayer:
             geom = feature.GetGeometryRef()
@@ -276,11 +283,19 @@ class PointToPolygon:
             xx = geom.Centroid().GetX()
             yy = geom.Centroid().GetY()
  
-            poly = ogr.Geometry(ogr.wkbPolygon)
-            poly.AddGeometry( self.doPolygon(xx, yy, paddingX, paddingY, angle, polygonType) )
-            outFeature = ogr.Feature(self.outLayer.GetLayerDefn())
-            outFeature.SetGeometry(poly)
-            self.outLayer.CreateFeature(outFeature)
+            if polygonType=='centroid':
+                thisPoint = ogr.Geometry(ogr.wkbPoint)
+                thisPoint.AddPoint(xx, yy)
+                outFeature = ogr.Feature(self.outLayer.GetLayerDefn())
+                outFeature.SetGeometry(thisPoint)
+                self.outLayer.CreateFeature(outFeature)
+            else:
+                poly = ogr.Geometry(ogr.wkbPolygon)
+                poly.AddGeometry( self.doPolygon(xx, yy, paddingX, paddingY, angle, polygonType) )
+                outFeature = ogr.Feature(self.outLayer.GetLayerDefn())
+                outFeature.SetGeometry(poly)
+                self.outLayer.CreateFeature(outFeature)
+            # copy over all input fields to the output layer
             for ii in range(layerDefinition.GetFieldCount()):
                 outFeature.SetField(layerDefinition.GetFieldDefn(ii).GetNameRef(), feature.GetField(ii))
 
@@ -295,8 +310,16 @@ class PointToPolygon:
     def radioButton(self, polygonType):
         if polygonType == 'rectangle':
             self.dlg.spinBoxPaddingY.setEnabled(True)
-        else:
+            self.dlg.spinBoxPaddingX.setEnabled(True)
+            self.dlg.spinBoxAngle.setEnabled(True)
+        elif polygonType in ['square','hexagon']:
             self.dlg.spinBoxPaddingY.setEnabled(False)
+            self.dlg.spinBoxPaddingX.setEnabled(True)
+            self.dlg.spinBoxAngle.setEnabled(True)
+        else: #centroid
+            self.dlg.spinBoxPaddingY.setEnabled(False)
+            self.dlg.spinBoxPaddingX.setEnabled(False)
+            self.dlg.spinBoxAngle.setEnabled(False)
 
     def OpenInQGis(self):
         layer = self.iface.addVectorLayer(self.outShapefile, "Padded", "ogr")
@@ -314,11 +337,12 @@ class PointToPolygon:
             self.dlg.labelErrorMessage.setText('Please define an output shapefile')
             return False
         # check padding >0
-        if self.dlg.spinboxPadding.value() <= 0.0:
-            self.dlg.labelErrorMessage.setText('Padding must be > 0.0')
-            return False
-        if self.dlg.radioRectangle.isChecked() and self.dlg.spinBoxPaddingY.value() <=0.0:
-            self.dlg.labelErrorMessage.setText('Y padding must be > 0.0 for a rectangle')
+        if not self.dlg.radioCentroid.isChecked():
+            if self.dlg.spinBoxPaddingX.value() <= 0.0:
+                self.dlg.labelErrorMessage.setText('Padding must be > 0.0')
+                return False
+            if self.dlg.radioRectangle.isChecked() and self.dlg.spinBoxPaddingY.value() <=0.0:
+                self.dlg.labelErrorMessage.setText('Y padding must be > 0.0 for a rectangle')
         # all clear
         return True
 
@@ -326,12 +350,13 @@ class PointToPolygon:
         # set the interface and signals
         self.dlg.buttonFileInput.clicked.connect(self.openInput)
         self.dlg.buttonFileOutput.clicked.connect(self.selectOutput)
-        self.dlg.spinboxPadding.valueChanged.connect(self.cleanErrorMessage)
+        self.dlg.spinBoxPaddingX.valueChanged.connect(self.cleanErrorMessage)
         self.dlg.spinBoxPaddingY.valueChanged.connect(self.cleanErrorMessage)
         # radio button and their signals
         self.dlg.radioSquare.clicked.connect(lambda: self.radioButton('square'))
         self.dlg.radioRectangle.clicked.connect(lambda: self.radioButton('rectangle'))
         self.dlg.radioHexagon.clicked.connect(lambda: self.radioButton('hexagon'))
+        self.dlg.radioCentroid.clicked.connect(lambda: self.radioButton('centroid'))
         # clean the interface
         self.resetGUI()
 
@@ -343,8 +368,9 @@ class PointToPolygon:
         # clean the interface
         self.dlg.textFileInput.clear()
         self.dlg.textFileOutput.clear()
-        self.dlg.spinboxPadding.setValue(0.0)
+        self.dlg.spinBoxPaddingX.setValue(0.0)
         # set the radio buttons
+        self.dlg.radioCentroid.setChecked(False)
         self.dlg.radioSquare.setChecked(True)
         self.dlg.spinBoxPaddingY.setEnabled(False)
         self.dlg.radioRectangle.setChecked(False)
