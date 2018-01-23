@@ -34,8 +34,6 @@ import os.path
 import math
 
 class PointToPolygon:
-    """QGIS Plugin Implementation."""
-
     def __init__(self, iface):
         """Constructor.
 
@@ -62,7 +60,6 @@ class PointToPolygon:
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
 
-
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Point to Polygon')
@@ -70,7 +67,7 @@ class PointToPolygon:
         self.toolbar = self.iface.addToolBar(u'PointToPolygon')
         self.toolbar.setObjectName(u'PointToPolygon')
 
-        # application variables
+        # business variables
         self.inputPath = ''
         self.outputPath = ''
         self.sqrt3_2 = 0.5*math.sqrt(3)
@@ -122,7 +119,6 @@ class PointToPolygon:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-
         icon_path = ':/plugins/PointToPolygon/icon.png'
         self.add_action(
             icon_path,
@@ -155,7 +151,6 @@ class PointToPolygon:
             return False
         self.inLayer = self.inDataSource.GetLayer()
         self.spatialRef = self.inLayer.GetSpatialRef()
-
         # once all done, update text field
         self.dlg.textFileInput.setText(self.inShapefile)
         # and save path for next time
@@ -265,8 +260,7 @@ class PointToPolygon:
             self.outLayer = self.outDS.CreateLayer("point", self.spatialRef, geom_type=ogr.wkbPoint)
         else:
             self.outLayer = self.outDS.CreateLayer("polygon", self.spatialRef, geom_type=ogr.wkbPolygon)
-        # copy all fields from points to polygons
-        # list of fields
+
         layerDefinition = self.inLayer.GetLayerDefn()
         for ii in range(layerDefinition.GetFieldCount()):
             fieldDefn = layerDefinition.GetFieldDefn(ii)
@@ -275,7 +269,6 @@ class PointToPolygon:
         paddingX=self.dlg.spinBoxPaddingX.value()
         paddingY=self.dlg.spinBoxPaddingY.value()
         angle = math.radians(self.dlg.spinBoxAngle.value())
-
 
         for feature in self.inLayer:
             geom = feature.GetGeometryRef()
