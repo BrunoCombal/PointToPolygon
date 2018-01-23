@@ -143,6 +143,16 @@
    <item>
     <layout class="QHBoxLayout" name="hLayoutRadio">
      <item>
+      <widget class="QRadioButton" name="radioCentroid">
+       <property name="text">
+        <string>centroid</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">radioGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
       <widget class="QRadioButton" name="radioSquare">
        <property name="text">
         <string>square</string>
@@ -210,7 +220,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="spinboxPadding">
+      <widget class="QDoubleSpinBox" name="spinBoxPaddingX">
        <property name="maximumSize">
         <size>
          <width>100</width>
@@ -221,7 +231,7 @@
         <number>8</number>
        </property>
        <property name="maximum">
-        <double>360.000000000000000</double>
+        <double>1000000.000000000000000</double>
        </property>
        <property name="singleStep">
         <double>0.100000000000000</double>
@@ -266,7 +276,7 @@
         <number>8</number>
        </property>
        <property name="maximum">
-        <double>360.000000000000000</double>
+        <double>1000000.000000000000000</double>
        </property>
        <property name="singleStep">
         <double>0.100000000000000</double>
