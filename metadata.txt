@@ -10,7 +10,7 @@
 name=Point to Polygon
 qgisMinimumVersion=2.18
 description=Creates polygons around points
-version=0.1
+version=0.2
 author=Bruno Combal
 email=bruno.combal@gmail.com
 
