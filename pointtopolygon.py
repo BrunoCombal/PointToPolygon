@@ -162,6 +162,14 @@ class PointToPolygon:
         # update interface
         if self.spatialRef.GetAttrValue('unit') is not None:
             self.dlg.labelPadding.setText('Distance to centre (in input unit: {})'.format(self.spatialRef.GetAttrValue('unit')))
+        # change padding default increment according to type
+        if self.spatialRef.GetAttrValue('unit').lower() in ['meters','meter']:
+            self.dlg.spinBoxPaddingX.setSingleStep(1.0)
+            self.dlg.spinBoxPaddingY.setSingleStep(1.0)
+        else:
+            self.dlg.spinBoxPaddingX.setSingleStep(0.1)
+            self.dlg.spinBoxPaddingY.setSingleStep(0.1)
+
         # once all done, update text field
         self.dlg.textFileInput.setText(self.inShapefile)
         # and save path for next time
@@ -377,6 +385,9 @@ class PointToPolygon:
         self.dlg.textFileInput.clear()
         self.dlg.textFileOutput.clear()
         self.dlg.spinBoxPaddingX.setValue(0.0)
+        self.dlg.spinBoxPaddingX.setSingleStep(0.1)
+        self.dlg.spinBoxPaddingY.setValue(0.0)
+        self.dlg.spinBoxPaddingY.setSingleStep(0.1)
         # set the radio buttons
         self.dlg.radioCentroid.setChecked(False)
         self.dlg.radioSquare.setChecked(True)
