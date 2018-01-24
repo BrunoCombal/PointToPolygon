@@ -1,4 +1,4 @@
-#Point To Polygon#
+# Point To Polygon
 
 A QGis plugin to transform a vector file of points into polygons (squares, rectangles or polygons) centered on those points. Optionally, the centroid of an input layer can also be created (the centroids of the features found in the input layer are generated and saved in a shapefile).
 
