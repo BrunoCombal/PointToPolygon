@@ -8,8 +8,14 @@
     <x>0</x>
     <y>0</y>
     <width>583</width>
-    <height>518</height>
+    <height>536</height>
    </rect>
+  </property>
+  <property name="font">
+   <font>
+    <weight>50</weight>
+    <bold>false</bold>
+   </font>
   </property>
   <property name="windowTitle">
    <string>Point to Polygon</string>
@@ -147,6 +153,16 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="checkBoxOpenQGis">
+     <property name="text">
+      <string>Open output  in QGis</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="label_3">
      <property name="font">
       <font>
@@ -156,14 +172,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Type of output</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Centroid: the centroid of the input is computed.</string>
+      <string>Create polygons around the centroids of the input features</string>
      </property>
     </widget>
    </item>
@@ -179,16 +188,6 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="hLayoutRadio">
-     <item>
-      <widget class="QRadioButton" name="radioCentroid">
-       <property name="text">
-        <string>centroid</string>
-       </property>
-       <attribute name="buttonGroup">
-        <string notr="true">radioGroup</string>
-       </attribute>
-      </widget>
-     </item>
      <item>
       <widget class="QRadioButton" name="radioSquare">
        <property name="text">
@@ -374,17 +373,56 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBoxOpenQGis">
-     <property name="text">
-      <string>Open in QGis</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="hrLayoutCentroid">
+     <item>
+      <widget class="QRadioButton" name="radioCentroid">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>Export centroids of the input features</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">radioGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QLabel" name="labelErrorMessage">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>30</height>
+      </size>
+     </property>
      <property name="font">
       <font>
        <pointsize>10</pointsize>
@@ -392,6 +430,12 @@
      </property>
      <property name="text">
       <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
