@@ -179,7 +179,7 @@
    <item>
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>Square, rectangle, hexagon: a polygon is drawn around the centroid of the input features, the polygon dimension is controlled with 1 (square and hexagon) or 2 (rectangle) padding parameters. For a square or a rectangle, the width and heigth is 2 time the padding values. For an hexagon, the padding corresponds to the distance from the hexagon tips to the centroid.</string>
+      <string>A polygon is drawn around the centroid of the input features, the polygon dimension is controlled with 1 (square and hexagon) or 2 (rectangle) padding parameters. For a square or a rectangle, the width and heigth is 2 times the padding values. For a hexagon, the padding corresponds to the distance from the hexagon tips to the centroid.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -188,6 +188,19 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="hLayoutRadio">
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item>
       <widget class="QRadioButton" name="radioSquare">
        <property name="text">
@@ -218,6 +231,19 @@
        </attribute>
       </widget>
      </item>
+     <item>
+      <spacer name="horizontalSpacer_6">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
     </layout>
    </item>
    <item>
@@ -228,7 +254,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Distance to centre (in input units)</string>
+      <string>Distance to centre (in input unit)</string>
      </property>
     </widget>
    </item>

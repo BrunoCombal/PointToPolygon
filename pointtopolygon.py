@@ -139,7 +139,15 @@ class PointToPolygon:
     def cleanErrorMessage(self):
         self.dlg.labelErrorMessage.clear()
 
+    def updateSBPaddingX(self):
+        self.dlg.labelErrorMessage.clear()
+        if self.dlg.radioSquare.isChecked() or self.dlg.radioHexagon.isChecked():
+            self.dlg.spinBoxPaddingY.setValue(self.dlg.spinBoxPaddingX.value())
+
     def openInput(self):
+        # reset labelPadding
+        self.dlg.labelPadding.setText('Distance to centre (in input unit)')
+        # file dialog
         dialog = QFileDialog()
         self.inShapefile = dialog.getOpenFileName(self.dlg,"Open vector file", self.inputPath)
         if self.inShapefile == '':
@@ -151,6 +159,9 @@ class PointToPolygon:
             return False
         self.inLayer = self.inDataSource.GetLayer()
         self.spatialRef = self.inLayer.GetSpatialRef()
+        # update interface
+        if self.spatialRef.GetAttrValue('unit') is not None:
+            self.dlg.labelPadding.setText('Distance to centre (in input unit: {})'.format(self.spatialRef.GetAttrValue('unit')))
         # once all done, update text field
         self.dlg.textFileInput.setText(self.inShapefile)
         # and save path for next time
@@ -347,7 +358,7 @@ class PointToPolygon:
         # set the interface and signals
         self.dlg.buttonFileInput.clicked.connect(self.openInput)
         self.dlg.buttonFileOutput.clicked.connect(self.selectOutput)
-        self.dlg.spinBoxPaddingX.valueChanged.connect(self.cleanErrorMessage)
+        self.dlg.spinBoxPaddingX.valueChanged.connect(self.updateSBPaddingX)
         self.dlg.spinBoxPaddingY.valueChanged.connect(self.cleanErrorMessage)
         # radio button and their signals
         self.dlg.radioSquare.clicked.connect(lambda: self.radioButton('square'))
