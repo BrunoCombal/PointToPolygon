@@ -29,9 +29,9 @@ changelog=0.4 - Release Candidate
     0.1 - Init
 
 # Tags are comma separated with spaces allowed
-tags=points,polygons,convert,buffer
+tags=points,squares,rectangles,hexagons,polygons,convert,buffer
 
-homepage=https://github.com/BrunoCombal/PointToPolygon
+homepage=https://github.com/BrunoCombal/PointToPolygon/wiki/Point-to-polygon
 category=Vector
 icon=icon.png
 # experimental flag
