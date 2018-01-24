@@ -52,7 +52,7 @@
    <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>A vector file of points, or lines, or polygons.</string>
+      <string>A vector file of points. If you select a shapefile of lines or polygons, their centroids will be used.</string>
      </property>
     </widget>
    </item>
