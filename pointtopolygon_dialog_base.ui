@@ -419,7 +419,7 @@
         <enum>Qt::RightToLeft</enum>
        </property>
        <property name="text">
-        <string>Export centroids of the input features</string>
+        <string>Export centroid of the input features</string>
        </property>
        <attribute name="buttonGroup">
         <string notr="true">radioGroup</string>
