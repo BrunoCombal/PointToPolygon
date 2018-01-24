@@ -315,7 +315,11 @@ class PointToPolygon:
             self.dlg.spinBoxAngle.setEnabled(False)
 
     def OpenInQGis(self):
-        layer = self.iface.addVectorLayer(self.outShapefile, "Padded", "ogr")
+        if self.dlg.radioCentroid.isChecked():
+            outLayerName = "Centroid"
+        else:
+            outLayerName = "Padded"
+        layer = self.iface.addVectorLayer(self.outShapefile, outLayerName, "ogr")
         if not layer:
             iface.messageBar().pushMessage("Error", "Layer failed to load", level=QgsMessageBar.CRITICAL)
             QgsMessageLog.logMessage("Layer failed to load", self.LogName, QgsMessageLog.INFO)
