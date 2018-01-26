@@ -32,6 +32,7 @@ import resources
 from pointtopolygon_dialog import PointToPolygonDialog
 import os.path
 import math
+from polygonBuffer import doPolygon
 
 class PointToPolygon:
     def __init__(self, iface):
@@ -201,55 +202,6 @@ class PointToPolygon:
         return True
 
     #
-    # returns a polygon ring around a central point
-    # inputs:
-    #   xx, yy: central point coordinates
-    #   paddingX, paddingY: padding around the centroid, defines the output ring size.
-    #   angle: rotation angle (radians) to apply to the output polygon
-    #   polygonType: type of polygon, defines the output polygons vertex coordinates
-    #
-    def doPolygon(self, xx, yy, paddingX, paddingY, angle, polygonType):
-
-        pointList=[]
-        if polygonType == 'square':
-            pointList.append([xx-paddingX, yy+paddingX])
-            pointList.append([xx+paddingX, yy+paddingX])
-            pointList.append([xx+paddingX, yy-paddingX])
-            pointList.append([xx-paddingX, yy-paddingX])
-            pointList.append([xx-paddingX, yy+paddingX])
-        elif polygonType == 'rectangle':
-            pointList.append([xx-paddingX, yy+paddingY])
-            pointList.append([xx+paddingX, yy+paddingY])
-            pointList.append([xx+paddingX, yy-paddingY])
-            pointList.append([xx-paddingX, yy-paddingY])
-            pointList.append([xx-paddingX, yy+paddingY])
-        elif polygonType == 'hexagon':
-            pointList.append([xx + 0.5*paddingX, yy + self.sqrt3_2*paddingX])
-            pointList.append([xx + paddingX, yy])
-            pointList.append([xx + 0.5*paddingX, yy - self.sqrt3_2*paddingX])
-            pointList.append([xx - 0.5*paddingX, yy - self.sqrt3_2*paddingX])
-            pointList.append([xx- paddingX, yy])
-            pointList.append([xx-0.5*paddingX, yy + self.sqrt3_2*paddingX])
-            pointList.append([xx + 0.5*paddingX, yy + self.sqrt3_2*paddingX])
-
-        if angle !=0:
-            tmp = []
-            cosa = math.cos(angle)
-            sina = math.sin(angle)
-            for ii in pointList:
-                xrot = (ii[0]-xx) * cosa - (ii[1]-yy) * sina  
-                yrot = (ii[0]-xx) * sina + (ii[1]-yy) * cosa
-                tmp.append([xrot + xx, yrot + yy])
-            pointList = None
-            pointList = tmp
-
-        ring = ogr.Geometry(ogr.wkbLinearRing)
-        for iPoint in pointList:
-            ring.AddPoint(iPoint[0], iPoint[1])
-
-        return ring
-
-    #
     # Creates and output, read the input, transform input features into centroids, for each centroid
     # creates a polygon around, save them to the output.
     # Input: from self values, defined by the interface
@@ -300,16 +252,15 @@ class PointToPolygon:
                 thisPoint.AddPoint(xx, yy)
                 outFeature = ogr.Feature(self.outLayer.GetLayerDefn())
                 outFeature.SetGeometry(thisPoint)
-                self.outLayer.CreateFeature(outFeature)
             else:
                 poly = ogr.Geometry(ogr.wkbPolygon)
-                poly.AddGeometry( self.doPolygon(xx, yy, paddingX, paddingY, angle, polygonType) )
+                poly.AddGeometry( doPolygon(xx, yy, paddingX, paddingY, angle, polygonType) )
                 outFeature = ogr.Feature(self.outLayer.GetLayerDefn())
                 outFeature.SetGeometry(poly)
-                self.outLayer.CreateFeature(outFeature)
             # copy over all input fields to the output layer
             for ii in range(layerDefinition.GetFieldCount()):
                 outFeature.SetField(layerDefinition.GetFieldDefn(ii).GetNameRef(), feature.GetField(ii))
+            self.outLayer.CreateFeature(outFeature)
 
             outFeature = None
 
