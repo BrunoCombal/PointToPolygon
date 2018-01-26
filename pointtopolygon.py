@@ -71,7 +71,6 @@ class PointToPolygon:
         # business variables
         self.inputPath = ''
         self.outputPath = ''
-        self.sqrt3_2 = 0.5*math.sqrt(3)
         self.LogName='Point to Polygon'
 
     # noinspection PyMethodMayBeStatic
