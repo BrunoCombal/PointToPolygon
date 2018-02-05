@@ -149,7 +149,7 @@ class PointToPolygon:
         self.dlg.labelPadding.setText('Distance to centre (in input unit)')
         # file dialog
         dialog = QFileDialog()
-        self.inShapefile = dialog.getOpenFileName(self.dlg,"Open vector file", self.inputPath)
+        self.inShapefile = dialog.getOpenFileName(self.dlg, "Open vector file", self.inputPath)
         if self.inShapefile == '':
             return True
         self.cleanErrorMessage()
@@ -173,9 +173,15 @@ class PointToPolygon:
         # once all done, update text field
         self.dlg.textFileInput.setText(self.inShapefile)
         # and save path for next time
-        self.inputPath =  os.path.dirname(self.inShapefile); 
+        self.inputPath =  os.path.dirname(self.inShapefile)
 
         return True
+
+    def isOpen(self, file):
+        listFile = [ layer.source() for layer in QgsMapLayerRegistry.instance().mapLayers().values()]
+        if u'{}'.format(file) in listFile:
+            return True
+        return False
 
     def addExtension(self, fname, ext):
         thisExt = os.path.splitext(fname)[-1]
@@ -192,6 +198,11 @@ class PointToPolygon:
             return True
         self.outShapefile = self.addExtension(thisFile, '.shp')
         self.cleanErrorMessage()
+
+        # is the file already open in QGis?
+        if self.isOpen(self.outShapefile):
+            self.dlg.labelErrorMessage.setText('Error, {} is already open in QGis. Please close or use another output file.'.format(self.outShapefile))
+            self.outShapefile = None
 
         # once all ok, update text
         self.dlg.textFileOutput.setText(self.outShapefile)
@@ -294,6 +305,16 @@ class PointToPolygon:
             QgsMessageLog.logMessage("Layer failed to load", self.LogName, QgsMessageLog.INFO)
 
     def doCheckToGo(self):
+        # first send text to self values
+        if not self.dlg.textFileInput === '':
+            self.inDataSource = self.dlg.textFileInput
+        else :
+            self.inDataSource = None
+        if not self.dlg.textFileOutput === '':
+            self.outShapefile = self.dlg.textFileOutput
+        else:
+            self.outputOk = False
+
         # Check input is defined and ok
         if self.inDataSource is None:
             self.dlg.labelErrorMessage.setText('Missing an input vector file')
