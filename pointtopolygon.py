@@ -22,6 +22,7 @@
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QFileDialog
+from qgis.gui import QgsMessageBar
 from qgis.core import *
 from osgeo import ogr
 import os
@@ -218,15 +219,14 @@ class PointToPolygon:
     #
     def doProcessing(self):
         # create output, copy projection from input
-        try:
-            outDriver = ogr.GetDriverByName("ESRI Shapefile")
-            if os.path.exists(self.outShapefile):
-                outDriver.DeleteDataSource(self.outShapefile)
-        except:
+        outDriver = ogr.GetDriverByName("ESRI Shapefile")
+        if os.path.exists(self.outShapefile):
+            outDriver.DeleteDataSource(self.outShapefile)
+
             # error message to push
-            iface.messageBar().pushMessage("Error", "Could not create output layer. Check this layer is not already open.", level=QgsMessageBar.CRITICAL)
-            QgsMessageLog.logMessage("uld not create output layer. Check this layer is not already open.", self.LogName, QgsMessageLog.INFO)
-            return False
+            #self.iface.messageBar().pushMessage("Error", "Could not create the output layer. Check this layer is not already open.", level=QgsMessageBar.CRITICAL)
+            #QgsMessageLog.logMessage("Could not create the output layer. Check this layer is not already open.", self.LogName, QgsMessageLog.INFO)
+            #return False
 
         polygonType='square'
         if self.dlg.radioRectangle.isChecked():
@@ -306,12 +306,12 @@ class PointToPolygon:
 
     def doCheckToGo(self):
         # first send text to self values
-        if not self.dlg.textFileInput === '':
+        if not self.dlg.textFileInput == '':
             self.inDataSource = self.dlg.textFileInput
         else :
             self.inDataSource = None
-        if not self.dlg.textFileOutput === '':
-            self.outShapefile = self.dlg.textFileOutput
+        if not self.dlg.textFileOutput == '':
+            self.outShapefile = self.dlg.textFileOutput.toPlainText()
         else:
             self.outputOk = False
 
