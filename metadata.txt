@@ -10,7 +10,7 @@
 name=Point to Polygon
 qgisMinimumVersion=2.18
 description=Creates polygons around points
-version=0.5
+version=0.6
 author=Bruno Combal
 email=bruno.combal@gmail.com
 
@@ -23,7 +23,8 @@ repository=https://github.com/BrunoCombal/PointToPolygon
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=0.5 - Input field values copied to output
+changelog=0.6 - Detects if the output file is already open in QGis
+    0.5 - Input field values copied to output
 	0.4 - Public version, Release Candidate
     0.3 - Export input features centroid
     0.2 - Allows creating different types of polygons
