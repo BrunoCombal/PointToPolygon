@@ -22,7 +22,6 @@
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QFileDialog
-from qgis.gui import QgsMessageBar
 from qgis.core import *
 from osgeo import ogr
 import os
@@ -150,7 +149,7 @@ class PointToPolygon:
         self.dlg.labelPadding.setText('Distance to centre (in input unit)')
         # file dialog
         dialog = QFileDialog()
-        self.inShapefile = dialog.getOpenFileName(self.dlg, "Open vector file", self.inputPath)
+        self.inShapefile = dialog.getOpenFileName(self.dlg,"Open vector file", self.inputPath)
         if self.inShapefile == '':
             return True
         self.cleanErrorMessage()
@@ -174,15 +173,9 @@ class PointToPolygon:
         # once all done, update text field
         self.dlg.textFileInput.setText(self.inShapefile)
         # and save path for next time
-        self.inputPath =  os.path.dirname(self.inShapefile)
+        self.inputPath =  os.path.dirname(self.inShapefile); 
 
         return True
-
-    def isOpen(self, file):
-        listFile = [ layer.source() for layer in QgsMapLayerRegistry.instance().mapLayers().values()]
-        if u'{}'.format(file) in listFile:
-            return True
-        return False
 
     def addExtension(self, fname, ext):
         thisExt = os.path.splitext(fname)[-1]
@@ -200,11 +193,6 @@ class PointToPolygon:
         self.outShapefile = self.addExtension(thisFile, '.shp')
         self.cleanErrorMessage()
 
-        # is the file already open in QGis?
-        if self.isOpen(self.outShapefile):
-            self.dlg.labelErrorMessage.setText('Error, {} is already open in QGis. Please close or use another output file.'.format(self.outShapefile))
-            self.outShapefile = None
-
         # once all ok, update text
         self.dlg.textFileOutput.setText(self.outShapefile)
 
@@ -219,14 +207,15 @@ class PointToPolygon:
     #
     def doProcessing(self):
         # create output, copy projection from input
-        outDriver = ogr.GetDriverByName("ESRI Shapefile")
-        if os.path.exists(self.outShapefile):
-            outDriver.DeleteDataSource(self.outShapefile)
-
+        try:
+            outDriver = ogr.GetDriverByName("ESRI Shapefile")
+            if os.path.exists(self.outShapefile):
+                outDriver.DeleteDataSource(self.outShapefile)
+        except:
             # error message to push
-            #self.iface.messageBar().pushMessage("Error", "Could not create the output layer. Check this layer is not already open.", level=QgsMessageBar.CRITICAL)
-            #QgsMessageLog.logMessage("Could not create the output layer. Check this layer is not already open.", self.LogName, QgsMessageLog.INFO)
-            #return False
+            iface.messageBar().pushMessage("Error", "Could not create output layer. Check this layer is not already open.", level=QgsMessageBar.CRITICAL)
+            QgsMessageLog.logMessage("uld not create output layer. Check this layer is not already open.", self.LogName, QgsMessageLog.INFO)
+            return False
 
         polygonType='square'
         if self.dlg.radioRectangle.isChecked():
@@ -304,17 +293,13 @@ class PointToPolygon:
             iface.messageBar().pushMessage("Error", "Layer failed to load", level=QgsMessageBar.CRITICAL)
             QgsMessageLog.logMessage("Layer failed to load", self.LogName, QgsMessageLog.INFO)
 
-    def doCheckToGo(self):
-        # first send text to self values
-        if not self.dlg.textFileInput == '':
-            self.inDataSource = self.dlg.textFileInput
-        else :
-            self.inDataSource = None
-        if not self.dlg.textFileOutput == '':
-            self.outShapefile = self.dlg.textFileOutput.toPlainText()
-        else:
-            self.outputOk = False
+    def isOpen(self, file):
+        listFile = [ layer.source() for layer in QgsMapLayerRegistry.instance().mapLayers().values()]
+        if u'{}'.format(file) in listFile:
+            return True
+        return False
 
+    def doCheckToGo(self):
         # Check input is defined and ok
         if self.inDataSource is None:
             self.dlg.labelErrorMessage.setText('Missing an input vector file')
@@ -322,6 +307,10 @@ class PointToPolygon:
         # check ouput is defined and ok
         if not self.outputOk:
             self.dlg.labelErrorMessage.setText('Please define an output shapefile')
+            return False
+        # if output already open return False
+        if self.isOpen(self.outShapefile):
+            self.dlg.labelErrorMessage.setText('Output file is alread open in QGis. Change output or close.')
             return False
         # check padding >0
         if not self.dlg.radioCentroid.isChecked():
