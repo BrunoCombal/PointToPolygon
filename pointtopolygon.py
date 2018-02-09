@@ -354,6 +354,7 @@ class PointToPolygon:
         self.dlg.spinBoxPaddingX.setSingleStep(0.1)
         self.dlg.spinBoxPaddingY.setValue(0.0)
         self.dlg.spinBoxPaddingY.setSingleStep(0.1)
+        self.dlg.spinBoxAngle.setValue(0.0)
         # set the radio buttons
         self.dlg.radioCentroid.setChecked(False)
         self.dlg.radioSquare.setChecked(True)
