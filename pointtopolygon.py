@@ -300,6 +300,12 @@ class PointToPolygon:
         return False
 
     def doCheckToGo(self):
+        # first action is to force the input/output variables to the text written in the textEdit, in case the user changed them manually
+        if self.dlg.textFileInput.toPlainText() != '':
+            self.inShapefile = self.dlg.textFileInput.toPlainText()
+        if self.dlg.textFileOutput.toPlainText() != '':
+            self.outShapefile = self.dlg.textFileOutput.toPlainText()
+
         # Check input is defined and ok
         if self.inDataSource is None:
             self.dlg.labelErrorMessage.setText('Missing an input vector file')
